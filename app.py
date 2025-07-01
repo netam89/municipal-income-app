@@ -59,7 +59,7 @@ if not selected_row.empty:
 
 # תצוגת גרף
 ax.set_xlabel("אשכול חברתי-כלכלי")
-ax.set_ylabel("ש"ח לנפש")
+ax.set_ylabel("ש\"ח לנפש")
 ax.set_title("התפלגות הכנסות לנפש לפי אשכול ורשות נבחרת")
 ax.legend(loc="upper right")
 st.pyplot(fig)
