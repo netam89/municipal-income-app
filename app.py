@@ -1,4 +1,3 @@
-
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib
@@ -76,7 +75,7 @@ if not selected_row.empty:
     )
 
 ax.set_xlabel("אשכול חברתי-כלכלי", fontsize=12)
-ax.set_ylabel("ש"ח לנפש", fontsize=12)
+ax.set_ylabel('ש"ח לנפש', fontsize=12)
 ax.set_title("התפלגות הכנסות לנפש לפי אשכול ורשות נבחרת", fontsize=14)
 ax.legend()
 
