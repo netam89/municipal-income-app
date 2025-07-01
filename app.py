@@ -3,6 +3,13 @@ import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
+from matplotlib import font_manager
+
+# הגדרת הפונט העברי (Arial)
+font_path = "Arial.ttf"
+font_prop = font_manager.FontProperties(fname=font_path)
+plt.rcParams['font.family'] = font_prop.get_name()
+plt.rcParams['axes.unicode_minus'] = False
 
 st.set_page_config(layout="wide")
 
