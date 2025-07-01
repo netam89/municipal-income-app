@@ -1,3 +1,4 @@
+
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib
@@ -5,18 +6,18 @@ import streamlit as st
 import numpy as np
 import os
 
-# Load custom font if available
-font_path = "./arial.ttf"
+# טעינת פונט מותאם במידה וקיים
+font_path = "./Arial Hebrew Regular.ttf"
 if os.path.exists(font_path):
     from matplotlib import font_manager as fm
     fm.fontManager.addfont(font_path)
     prop = fm.FontProperties(fname=font_path)
     plt.rcParams['font.family'] = prop.get_name()
 
-# Load the data
+# קריאת הנתונים
 df_clean = pd.read_csv("data_arnona.csv")
 
-# Column definitions
+# הגדרת עמודות
 income_columns = [
     "הכנסות מהמדינה לנפש",
     "ארנונה למגורים והכנסות עצמיות לנפש",
@@ -25,31 +26,30 @@ income_columns = [
 cluster_col = "אשכול"
 city_col = "שם הרשות"
 
-# Title
-st.title("השוואת הכנסות לנפש לפי אשכול ורשות מקומית")
+# כותרת ראשית
+st.title("השוואת הכנסות לנפש לפי אשכול ורשות מקומית"[::-1])
 
-# City selector
-selected_city = st.selectbox("בחרי רשות", df_clean[city_col].dropna().unique())
+# תפריט לבחירת רשות (הטקסט בלבד הפוך, לא הערכים)
+selected_city = st.selectbox("בחרי רשות"[::-1], df_clean[city_col].dropna().unique())
 
-# Group data by cluster and calculate mean
+# חישוב ממוצע לפי אשכול
 grouped = df_clean.groupby(cluster_col)[income_columns].mean().reset_index()
 
-# Plot
+# ציור הגרף
 fig, ax = plt.subplots(figsize=(10, 6))
 
 bar_width = 0.6
 clusters = grouped[cluster_col].astype(str)
 
-# צבעים וערכים
 colors = ["#1f77b4", "#ff7f0e", "#2ca02c"]
-labels = income_columns
+labels = [col[::-1] for col in income_columns]  # להפוך לעברית תקינה
 bottom_vals = np.zeros(len(grouped))
 
 for i, col in enumerate(income_columns):
     ax.bar(clusters, grouped[col], bottom=bottom_vals, color=colors[i], label=labels[i])
     bottom_vals += grouped[col]
 
-# הוספת העמודה של הרשות הנבחרת על גבי האשכול המתאים
+# הוספת עמודה שקופה של הרשות הנבחרת
 selected_row = df_clean[df_clean[city_col] == selected_city]
 if not selected_row.empty:
     selected_cluster = selected_row[cluster_col].values[0]
@@ -70,9 +70,13 @@ if not selected_row.empty:
         )
         overlay_bottom += overlay_vals[i]
 
-ax.set_xlabel("אשכול חברתי-כלכלי", fontsize=12)
-ax.set_ylabel('ש"ח לנפש', fontsize=12)
-ax.set_title("התפלגות הכנסות לנפש לפי אשכול ורשות נבחרת", fontsize=14)
+ax.set_xlabel("אשכול חברתי-כלכלי"[::-1], fontsize=12)
+ax.set_ylabel('ש"ח לנפש'[::-1], fontsize=12)
+ax.set_title("התפלגות הכנסות לנפש לפי אשכול ורשות נבחרת"[::-1], fontsize=14)
 ax.legend()
 
 st.pyplot(fig)
+
+
+
+
