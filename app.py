@@ -45,6 +45,10 @@ if not selected_row.empty:
         selected_dict[col] = selected_row.iloc[0][col]
     grouped = pd.concat([grouped, pd.DataFrame([selected_dict])], ignore_index=True)
 
+# מיון מחדש לפי אשכול
+grouped[cluster_col] = pd.to_numeric(grouped[cluster_col], errors='coerce')
+grouped = grouped.sort_values(by=cluster_col)
+
 # יצירת גרף נערם
 fig, ax = plt.subplots(figsize=(12, 6))
 bar_bottom = [0] * len(grouped)
@@ -52,22 +56,26 @@ colors = ['#1f77b4', '#ff7f0e', '#2ca02c']
 
 # ציור עמודות לכל סוג הכנסה
 for i, col in enumerate(income_columns):
-    ax.bar(
-        grouped['אשכול'],
-        grouped[col],
-        label=col,
-        bottom=bar_bottom,
-        color=colors[i],
-        alpha=[0.4 if '(' in x else 1.0 for x in grouped['אשכול']],
-        edgecolor=['black' if '(' in x else 'none' for x in grouped['אשכול']],
-        linewidth=1
-    )
-    bar_bottom = [a + b for a, b in zip(bar_bottom, grouped[col])]
+    for j, (x, y) in enumerate(zip(grouped['אשכול'], grouped[col])):
+        is_selected = '(' in x
+        ax.bar(
+            x,
+            y,
+            bottom=bar_bottom[j],
+            color=colors[i],
+            alpha=0.4 if is_selected else 1.0,
+            edgecolor='black' if is_selected else 'none',
+            linewidth=1,
+            label=col if j == 0 else None
+        )
+        bar_bottom[j] += y
 
 # תצוגת גרף
 ax.set_xlabel("אשכול חברתי-כלכלי")
 ax.set_ylabel("ש\"ח לנפש")
 ax.set_title("התפלגות הכנסות לנפש לפי אשכול ורשות נבחרת", loc='right')
-ax.legend(loc="upper left")
+handles, labels = ax.get_legend_handles_labels()
+by_label = dict(zip(labels, handles))
+ax.legend(by_label.values(), by_label.keys(), loc="upper left")
 plt.xticks(rotation=0)
 st.pyplot(fig)
