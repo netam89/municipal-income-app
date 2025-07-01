@@ -72,7 +72,7 @@ if not selected_row.empty:
 
 # סגנון
 ax.set_xlabel("אשכול חברתי-כלכלי", fontsize=12)
-ax.set_ylabel("ש"ח לנפש", fontsize=12)
+ax.set_ylabel("ש\"ח לנפש", fontsize=12)
 ax.set_title("התפלגות הכנסות לנפש לפי אשכול ורשות שנבחרה", fontsize=14)
 ax.legend()
 st.pyplot(fig)
