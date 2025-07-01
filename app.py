@@ -5,8 +5,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib import font_manager
 
-# הגדרת הפונט העברי (Arial)
-font_path = "Arial.ttf"
+# הגדרת הפונט העברי (Arial Hebrew Regular)
+font_path = "Arial Hebrew Regular.ttf"
 font_prop = font_manager.FontProperties(fname=font_path)
 plt.rcParams['font.family'] = font_prop.get_name()
 plt.rcParams['axes.unicode_minus'] = False
@@ -40,7 +40,7 @@ if not selected_row.empty:
     selected_cluster = selected_row.iloc[0][cluster_col]
     city_data = selected_row[income_columns].iloc[0].values
     city_bar = pd.DataFrame([city_data], columns=income_columns)
-    city_bar[cluster_col] = selected_cluster + 0.2  # מקדם כדי לא לכסות את העמודה הקיימת
+    city_bar[cluster_col] = selected_cluster + 0.2
     city_bar['label'] = f"(הרשות) {selected_city}"
 
 # תרשים
@@ -72,7 +72,7 @@ if not selected_row.empty:
 
 # סגנון
 ax.set_xlabel("אשכול חברתי-כלכלי", fontsize=12)
-ax.set_ylabel('ש"ח לנפש', fontsize=12)
+ax.set_ylabel("ש"ח לנפש", fontsize=12)
 ax.set_title("התפלגות הכנסות לנפש לפי אשכול ורשות שנבחרה", fontsize=14)
 ax.legend()
 st.pyplot(fig)
