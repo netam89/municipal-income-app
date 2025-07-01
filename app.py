@@ -95,8 +95,9 @@ selected_label = f"{selected_city} – אשכול {int(selected_cluster)}"
 x_labels.insert(insert_index, selected_label)
 
 # עדכון התוויות על הציר
-ax.set_xticks(x_positions)
+ax.set_xticks(bar_positions)  # תואם לאורך x_labels
 ax.set_xticklabels(x_labels, rotation=45, ha='right')
+
 
 
 ax.set_xlabel("אשכול חברתי-כלכלי"[::-1], fontsize=12)
