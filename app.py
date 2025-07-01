@@ -1,78 +1,79 @@
-
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
-import numpy as np
-from matplotlib import font_manager
+import matplotlib.font_manager as fm
 
-# הגדרת הפונט העברי (Arial Hebrew Regular)
-font_path = "Arial Hebrew Regular.ttf"
-font_prop = font_manager.FontProperties(fname=font_path)
-plt.rcParams['font.family'] = font_prop.get_name()
-plt.rcParams['axes.unicode_minus'] = False
+# Load custom Hebrew font
+font_path = "Arial.ttf"
+fm.fontManager.addfont(font_path)
+plt.rcParams['font.family'] = 'Arial'
 
-st.set_page_config(layout="wide")
-
-# טוען את הדאטה
+# Load data
 df_clean = pd.read_csv("data_arnona.csv")
 
-# שמות העמודות
-cluster_col = 'אשכול'
-city_col = 'שם הרשות'
+# Columns for the plot
 income_columns = [
-    'הכנסות מהמדינה לנפש',
-    'ארנונה למגורים והכנסות עצמיות לנפש',
-    'ארנונה לא למגורים לנפש'
+    "הכנסות מהמדינה לנפש",
+    "ארנונה למגורים והכנסות עצמיות לנפש",
+    "ארנונה לא למגורים לנפש"
 ]
 
-# כותרת ראשית
-st.title("השוואת הכנסות לנפש לפי אשכול ורשות מקומית"[::-1])
+# Map for Hebrew labels
+income_labels = {
+    "הכנסות מהמדינה לנפש": "הכנסות מהמדינה לנפש",
+    "ארנונה למגורים והכנסות עצמיות לנפש": "ארנונה למגורים והכנסות עצמיות לנפש",
+    "ארנונה לא למגורים לנפש": "ארנונה לא למגורים לנפש"
+}
 
-# תפריט נפתח לבחירת רשות
-selected_city = st.selectbox("בחרו רשות"[::-1], sorted(df_clean[city_col].dropna().unique()))
+# Streamlit title and dropdown
+st.title("השוואת הכנסות לנפש לפי אשכול ורשות מקומית")
+selected_city = st.selectbox("בחרי רשות", sorted(df_clean["שם הרשות"].dropna().unique()))
 
-# מחשב ממוצעים לפי אשכול
+# אשכול column
+cluster_col = "אשכול"
+df_clean[cluster_col] = pd.to_numeric(df_clean[cluster_col], errors='coerce')
+
+# Grouped data
 grouped = df_clean.groupby(cluster_col)[income_columns].mean().reset_index()
 
-# מוסיף את נתוני הרשות הנבחרת
-selected_row = df_clean[df_clean[city_col] == selected_city]
-if not selected_row.empty:
-    selected_cluster = selected_row.iloc[0][cluster_col]
-    city_data = selected_row[income_columns].iloc[0].values
-    city_bar = pd.DataFrame([city_data], columns=income_columns)
-    city_bar[cluster_col] = selected_cluster + 0.2
-    city_bar['label'] = selected_city[::-1]
+# Get selected city values
+selected_city_data = df_clean[df_clean["שם הרשות"] == selected_city]
+selected_cluster = selected_city_data[cluster_col].values[0]
 
-# תרשים
+# Bar chart
 fig, ax = plt.subplots(figsize=(10, 6))
-bottom = np.zeros(len(grouped))
+bottom = [0] * len(grouped)
 
 colors = ['#1f77b4', '#ff7f0e', '#2ca02c']
+for i, col in enumerate(income_columns):
+    ax.bar(
+        grouped[cluster_col],
+        grouped[col],
+        bottom=bottom,
+        label=income_labels[col],
+        color=colors[i]
+    )
+    bottom = [x + y for x, y in zip(bottom, grouped[col])]
 
-# עמודות ראשיות לפי אשכול
-for idx, column in enumerate(income_columns):
-    ax.bar(grouped[cluster_col], grouped[column], bottom=bottom, label=column[::-1], color=colors[idx])
-    bottom += grouped[column]
+# Add selected city
+if not pd.isna(selected_cluster):
+    base_values = selected_city_data[income_columns].values[0]
+    bottom_values = [0, base_values[0], base_values[0] + base_values[1]]
+    highlight_colors = ['lightblue'] * len(income_columns)
+    ax.bar(
+        selected_cluster,
+        base_values,
+        bottom=bottom_values,
+        color=highlight_colors,
+        edgecolor='black',
+        linewidth=1,
+        label="_nolegend_"  # לא ייכנס למקרא
+    )
 
-# עמודת הרשות הנבחרת
-if not selected_row.empty:
-    bottom_city = np.zeros(1)
-    for idx, column in enumerate(income_columns):
-        ax.bar(
-            city_bar[cluster_col],
-            city_bar[column],
-            bottom=bottom_city,
-            label=(f"{column[::-1]} ({city_bar['label'].iloc[0]})") if idx == 0 else "",
-            color=colors[idx],
-            alpha=0.3,
-            edgecolor='black',
-            linewidth=1
-        )
-        bottom_city += city_bar[column].values
-
-# סגנון
-ax.set_xlabel("אשכול חברתי-כלכלי"[::-1], fontsize=12)
-ax.set_ylabel('ש"ח לנפש'[::-1], fontsize=12)
-ax.set_title("התפלגות הכנסות לנפש לפי אשכול ורשות שנבחרה"[::-1], fontsize=14)
+# Labels and legend
+ax.set_title("התפלגות הכנסות לנפש לפי אשכול ורשות נבחרת", fontsize=14)
+ax.set_xlabel("אשכול חברתי-כלכלי", fontsize=12)
+ax.set_ylabel("ש"ח לנפש", fontsize=12)
 ax.legend()
+
 st.pyplot(fig)
