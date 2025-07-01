@@ -4,7 +4,7 @@ import streamlit as st
 import matplotlib.pyplot as plt
 
 # קריאת הדאטה
-df_clean = pd.read_csv("data.csv")
+df_clean = pd.read_csv("data_arnona.csv")
 
 # כותרת
 st.title("השוואת הכנסות לנפש לפי אשכול ורשות מקומית")
