@@ -79,12 +79,14 @@ for i, col in enumerate(income_columns):
     bottom_vals += values
 
 # ציור עמודת הרשות בצבעים מודגשים
-highlight_colors = ['#5faee3', '#ffae58', '#5cd65c']  # גוונים בהירים יותר משל colors
+highlight_colors = ["#2c6b99", "#cc6c00", "#2a9232"]
 overlay_bottom = 0
-for i, val in enumerate(selected_vals):
+for i, col in enumerate(income_columns):
+    val = selected_row[col].values[0]
     ax.bar(bar_positions[insert_index], val, bottom=overlay_bottom,
            width=0.6, color=highlight_colors[i], edgecolor='black', linewidth=1.5)
     overlay_bottom += val
+
 
 
 # יצירת תוויות לציר X כולל הרשות
