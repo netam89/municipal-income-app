@@ -27,10 +27,10 @@ cluster_col = "אשכול"
 city_col = "שם הרשות"
 
 # כותרת ראשית
-st.title("השוואת הכנסות לנפש לפי אשכול ורשות מקומית"[::-1])
+st.title("השוואת הכנסות לנפש לפי אשכול ורשות מקומית")
 
 # תפריט לבחירת רשות (הטקסט בלבד הפוך, לא הערכים)
-selected_city = st.selectbox("בחרי רשות"[::-1], df_clean[city_col].dropna().unique())
+selected_city = st.selectbox("בחרי רשות", df_clean[city_col].dropna().unique())
 
 # חישוב ממוצע לפי אשכול
 grouped = df_clean.groupby(cluster_col)[income_columns].mean().reset_index()
@@ -56,19 +56,20 @@ if not selected_row.empty:
     overlay_vals = selected_row[income_columns].values[0]
     cluster_index = grouped[cluster_col].tolist().index(selected_cluster)
 
-    overlay_bottom = 0
-    for i, col in enumerate(income_columns):
-        ax.bar(
-            clusters[cluster_index],
-            overlay_vals[i],
-            bottom=overlay_bottom,
-            color=colors[i],
-            alpha=0.4,
-            linewidth=0.5,
-            edgecolor='black',
-            label="_nolegend_"
-        )
-        overlay_bottom += overlay_vals[i]
+  overlay_bottom = 0
+  for i, col in enumerate(income_columns):
+      ax.bar(
+        x_pos,
+        overlay_vals[i],
+        bottom=overlay_bottom,
+        width=0.4,
+        color=colors[i],
+        alpha=0.4,
+        linewidth=0.5,
+        edgecolor='black',
+        label="_nolegend_"
+    )
+    overlay_bottom += overlay_vals[i]
 
 ax.set_xlabel("אשכול חברתי-כלכלי"[::-1], fontsize=12)
 ax.set_ylabel('ש"ח לנפש'[::-1], fontsize=12)
