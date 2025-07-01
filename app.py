@@ -62,8 +62,9 @@ selected_label = f"{selected_city} – אשכול {int(selected_cluster)}"
 
 insert_index = grouped[cluster_col].tolist().index(selected_cluster) + 1
 x_labels = grouped[cluster_col].astype(str).tolist()
-selected_label = f"{selected_city} – אשכול {int(selected_cluster)}"
+selected_label = f"{selected_city} – אשכול {int(selected_cluster)}"[::-1]
 x_labels.insert(insert_index, selected_label)
+
 
 # בניית ערכי y
 bottom_vals = np.zeros(len(x_labels))
@@ -91,7 +92,7 @@ for i, col in enumerate(income_columns):
 
 # יצירת תוויות לציר X כולל הרשות
 x_labels = clusters.tolist()
-selected_label = f"{selected_city} – אשכול {int(selected_cluster)}"
+selected_label = f"{selected_city} – אשכול {int(selected_cluster)}"[::-1]
 x_labels.insert(insert_index, selected_label)
 
 # עדכון התוויות על הציר
