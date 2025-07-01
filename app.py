@@ -54,27 +54,37 @@ for i, col in enumerate(income_columns):
 
 # הוספת עמודה שקופה של הרשות הנבחרת
 selected_row = df_clean[df_clean[city_col] == selected_city]
-if not selected_row.empty:
-    selected_cluster = selected_row[cluster_col].values[0]
-    overlay_vals = selected_row[income_columns].values[0]
-    cluster_index = grouped[cluster_col].tolist().index(selected_cluster)
+# הכנת df_plot כמו בקולאב
+df_plot = grouped.copy()
+selected_cluster = selected_row[cluster_col].values[0]
+selected_vals = selected_row[income_columns].values[0]
+selected_label = f"{selected_city} – אשכול {int(selected_cluster)}"
 
-    x_overlay = x_positions[cluster_index] + 0.25  # להזיז קצת ימינה
+insert_index = grouped[cluster_col].tolist().index(selected_cluster) + 1
+x_labels = grouped[cluster_col].astype(str).tolist()
+x_labels.insert(insert_index, selected_label)
 
-    overlay_bottom = 0
-    for i, col in enumerate(income_columns):
-        ax.bar(
-            x_overlay,
-            overlay_vals[i],
-            bottom=overlay_bottom,
-            width=0.4,
-            color=colors[i],
-            alpha=0.4,
-            linewidth=0.5,
-            edgecolor='black',
-            label="_nolegend_"
-        )
-        overlay_bottom += overlay_vals[i]
+# בניית ערכי y
+bottom_vals = np.zeros(len(x_labels))
+bar_positions = np.arange(len(x_labels))
+
+fig, ax = plt.subplots(figsize=(10, 6))
+
+for i, col in enumerate(income_columns):
+    values = grouped[col].tolist()
+    values.insert(insert_index, 0)  # מקום לעמודת הרשות
+    ax.bar(bar_positions, values, bottom=bottom_vals,
+           width=0.6, color=colors[i], label=labels[i])
+    bottom_vals += values
+
+# ציור עמודת הרשות בצבעים מודגשים
+highlight_colors = ["dodgerblue", "forestgreen", "indianred"]
+overlay_bottom = 0
+for i, val in enumerate(selected_vals):
+    ax.bar(bar_positions[insert_index], val, bottom=overlay_bottom,
+           width=0.6, color=highlight_colors[i], edgecolor='black', linewidth=1.5)
+    overlay_bottom += val
+
 
 ax.set_xticks(x_positions)
 ax.set_xticklabels(clusters)
