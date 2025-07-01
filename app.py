@@ -62,6 +62,7 @@ selected_label = f"{selected_city} – אשכול {int(selected_cluster)}"
 
 insert_index = grouped[cluster_col].tolist().index(selected_cluster) + 1
 x_labels = grouped[cluster_col].astype(str).tolist()
+selected_label = f"{selected_city} – אשכול {int(selected_cluster)}"
 x_labels.insert(insert_index, selected_label)
 
 # בניית ערכי y
@@ -78,7 +79,7 @@ for i, col in enumerate(income_columns):
     bottom_vals += values
 
 # ציור עמודת הרשות בצבעים מודגשים
-highlight_colors = ["dodgerblue", "forestgreen", "indianred"]
+highlight_colors = ['#5faee3', '#ffae58', '#5cd65c']  # גוונים בהירים יותר משל colors
 overlay_bottom = 0
 for i, val in enumerate(selected_vals):
     ax.bar(bar_positions[insert_index], val, bottom=overlay_bottom,
@@ -86,8 +87,15 @@ for i, val in enumerate(selected_vals):
     overlay_bottom += val
 
 
+# יצירת תוויות לציר X כולל הרשות
+x_labels = clusters.tolist()
+selected_label = f"{selected_city} – אשכול {int(selected_cluster)}"
+x_labels.insert(insert_index, selected_label)
+
+# עדכון התוויות על הציר
 ax.set_xticks(x_positions)
-ax.set_xticklabels(clusters)
+ax.set_xticklabels(x_labels, rotation=45, ha='right')
+
 
 ax.set_xlabel("אשכול חברתי-כלכלי"[::-1], fontsize=12)
 ax.set_ylabel('ש"ח לנפש'[::-1], fontsize=12)
