@@ -26,11 +26,14 @@ income_columns = [
 cluster_col = "אשכול"
 city_col = "שם הרשות"
 
-# כותרת ראשית
-st.title("השוואת הכנסות לנפש לפי אשכול ורשות מקומית")
+# כותרת בעברית בכיוון תקין
+st.markdown("<h1 style='direction: rtl;'>השוואת הכנסות לנפש לפי אשכול ורשות מקומית</h1>", unsafe_allow_html=True)
 
-# תפריט לבחירת רשות (הטקסט בלבד הפוך, לא הערכים)
-selected_city = st.selectbox("בחרי רשות", df_clean[city_col].dropna().unique())
+# תווית לבחירת רשות גם כן בכיוון תקין
+st.markdown("<p style='direction: rtl;'>בחרי רשות:</p>", unsafe_allow_html=True)
+selected_city = st.selectbox("", df_clean[city_col].dropna().unique())
+
+
 
 # חישוב ממוצע לפי אשכול
 grouped = df_clean.groupby(cluster_col)[income_columns].mean().reset_index()
@@ -40,13 +43,13 @@ fig, ax = plt.subplots(figsize=(10, 6))
 
 bar_width = 0.6
 clusters = grouped[cluster_col].astype(str)
+x_positions = np.arange(len(clusters))  # מיקומים מספריים לציר X
 
 colors = ["#1f77b4", "#ff7f0e", "#2ca02c"]
 labels = [col[::-1] for col in income_columns]  # להפוך לעברית תקינה
 bottom_vals = np.zeros(len(grouped))
-
 for i, col in enumerate(income_columns):
-    ax.bar(clusters, grouped[col], bottom=bottom_vals, color=colors[i], label=labels[i])
+    ax.bar(x_positions, grouped[col], bottom=bottom_vals, color=colors[i], label=labels[i])
     bottom_vals += grouped[col]
 
 # הוספת עמודה שקופה של הרשות הנבחרת
@@ -56,20 +59,25 @@ if not selected_row.empty:
     overlay_vals = selected_row[income_columns].values[0]
     cluster_index = grouped[cluster_col].tolist().index(selected_cluster)
 
-  overlay_bottom = 0
-  for i, col in enumerate(income_columns):
-      ax.bar(
-        x_pos,
-        overlay_vals[i],
-        bottom=overlay_bottom,
-        width=0.4,
-        color=colors[i],
-        alpha=0.4,
-        linewidth=0.5,
-        edgecolor='black',
-        label="_nolegend_"
-    )
-    overlay_bottom += overlay_vals[i]
+    x_overlay = x_positions[cluster_index] + 0.25  # להזיז קצת ימינה
+
+    overlay_bottom = 0
+    for i, col in enumerate(income_columns):
+        ax.bar(
+            x_overlay,
+            overlay_vals[i],
+            bottom=overlay_bottom,
+            width=0.4,
+            color=colors[i],
+            alpha=0.4,
+            linewidth=0.5,
+            edgecolor='black',
+            label="_nolegend_"
+        )
+        overlay_bottom += overlay_vals[i]
+
+ax.set_xticks(x_positions)
+ax.set_xticklabels(clusters)
 
 ax.set_xlabel("אשכול חברתי-כלכלי"[::-1], fontsize=12)
 ax.set_ylabel('ש"ח לנפש'[::-1], fontsize=12)
