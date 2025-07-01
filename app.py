@@ -52,7 +52,7 @@ colors = ['#1f77b4', '#ff7f0e', '#2ca02c']
 
 # ציור עמודות לכל סוג הכנסה
 for i, col in enumerate(income_columns):
-    bars = ax.bar(
+    ax.bar(
         grouped['אשכול'],
         grouped[col],
         label=col,
@@ -66,7 +66,7 @@ for i, col in enumerate(income_columns):
 
 # תצוגת גרף
 ax.set_xlabel("אשכול חברתי-כלכלי")
-ax.set_ylabel("ש"ח לנפש")
+ax.set_ylabel("ש\"ח לנפש")
 ax.set_title("התפלגות הכנסות לנפש לפי אשכול ורשות נבחרת", loc='right')
 ax.legend(loc="upper left")
 plt.xticks(rotation=0)
