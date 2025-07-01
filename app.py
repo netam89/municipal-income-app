@@ -82,7 +82,7 @@ def draw_chart_matplotlib(selected_city):
 
     ax.set_title("התפלגות הכנסות לנפש לפי אשכול ורשות נבחרת"[::-1])
     ax.set_xlabel("אשכול / רשות"[::-1])
-    ax.set_ylabel("ש"ח לנפש"[::-1])
+    ax.set_ylabel('ש"ח לנפש'[::-1])
     ax.set_xticks(bar_positions)
     ax.set_xticklabels(x_labels, rotation=45, ha='right')
     ax.legend(loc='upper right')
