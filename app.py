@@ -26,10 +26,10 @@ income_columns = [
 ]
 
 # כותרת ראשית
-st.title("השוואת הכנסות לנפש לפי אשכול ורשות מקומית")
+st.title("השוואת הכנסות לנפש לפי אשכול ורשות מקומית"[::-1])
 
 # תפריט נפתח לבחירת רשות
-selected_city = st.selectbox("בחרו רשות", sorted(df_clean[city_col].dropna().unique()))
+selected_city = st.selectbox("בחרו רשות"[::-1], sorted(df_clean[city_col].dropna().unique()))
 
 # מחשב ממוצעים לפי אשכול
 grouped = df_clean.groupby(cluster_col)[income_columns].mean().reset_index()
@@ -41,7 +41,7 @@ if not selected_row.empty:
     city_data = selected_row[income_columns].iloc[0].values
     city_bar = pd.DataFrame([city_data], columns=income_columns)
     city_bar[cluster_col] = selected_cluster + 0.2
-    city_bar['label'] = f"(הרשות) {selected_city}"
+    city_bar['label'] = selected_city[::-1]
 
 # תרשים
 fig, ax = plt.subplots(figsize=(10, 6))
@@ -51,7 +51,7 @@ colors = ['#1f77b4', '#ff7f0e', '#2ca02c']
 
 # עמודות ראשיות לפי אשכול
 for idx, column in enumerate(income_columns):
-    ax.bar(grouped[cluster_col], grouped[column], bottom=bottom, label=column, color=colors[idx])
+    ax.bar(grouped[cluster_col], grouped[column], bottom=bottom, label=column[::-1], color=colors[idx])
     bottom += grouped[column]
 
 # עמודת הרשות הנבחרת
@@ -62,7 +62,7 @@ if not selected_row.empty:
             city_bar[cluster_col],
             city_bar[column],
             bottom=bottom_city,
-            label=f"{column} ({city_bar['label'].iloc[0]})" if idx == 0 else "",
+            label=(f"{column[::-1]} ({city_bar['label'].iloc[0]})") if idx == 0 else "",
             color=colors[idx],
             alpha=0.3,
             edgecolor='black',
@@ -71,8 +71,8 @@ if not selected_row.empty:
         bottom_city += city_bar[column].values
 
 # סגנון
-ax.set_xlabel("אשכול חברתי-כלכלי", fontsize=12)
-ax.set_ylabel("ש\"ח לנפש", fontsize=12)
-ax.set_title("התפלגות הכנסות לנפש לפי אשכול ורשות שנבחרה", fontsize=14)
+ax.set_xlabel("אשכול חברתי-כלכלי"[::-1], fontsize=12)
+ax.set_ylabel('ש"ח לנפש'[::-1], fontsize=12)
+ax.set_title("התפלגות הכנסות לנפש לפי אשכול ורשות שנבחרה"[::-1], fontsize=14)
 ax.legend()
 st.pyplot(fig)
