@@ -79,6 +79,17 @@ for i, col in enumerate(income_columns):
            width=0.6, color=colors[i], label=labels[i])
     bottom_vals += values
 
+# הוספת אחוזים לעמודות של האשכולות
+totals = grouped[income_columns].sum(axis=1)
+for i, col in enumerate(income_columns):
+    cumulative = np.zeros(len(grouped))
+    for j in range(i):
+        cumulative += grouped[income_columns[j]]
+    for idx, val in enumerate(grouped[col]):
+        percent = val / totals[idx] * 100
+        ax.text(x_positions[idx], cumulative[idx] + val / 2, f"{percent:.0f}%", ha='center', va='center', fontsize=8, color='white')
+
+
 # ציור עמודת הרשות בצבעים מודגשים
 highlight_colors = ["#2c6b99", "#cc6c00", "#2a9232"]
 overlay_bottom = 0
@@ -88,6 +99,14 @@ for i, col in enumerate(income_columns):
            width=0.6, color=highlight_colors[i], edgecolor='black', linewidth=1.5)
     overlay_bottom += val
 
+# הוספת אחוזים לעמודת הרשות
+selected_total = selected_row[income_columns].sum(axis=1).values[0]
+overlay_bottom = 0
+for i, col in enumerate(income_columns):
+    val = selected_row[col].values[0]
+    percent = val / selected_total * 100
+    ax.text(bar_positions[insert_index], overlay_bottom + val / 2, f"{percent:.0f}%", ha='center', va='center', fontsize=8, color='white')
+    overlay_bottom += val
 
 
 # יצירת תוויות לציר X כולל הרשות
