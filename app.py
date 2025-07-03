@@ -39,8 +39,6 @@ selected_city = st.selectbox("", df_clean[city_col].dropna().unique())
 # חישוב ממוצע לפי אשכול
 grouped = df_clean.groupby(cluster_col)[income_columns].mean().reset_index()
 
-# ציור הגרף
-fig, ax = plt.subplots(figsize=(10, 6))
 
 bar_width = 0.6
 clusters = grouped[cluster_col].astype(str)
@@ -55,8 +53,7 @@ for i, col in enumerate(income_columns):
 
 # הוספת עמודה שקופה של הרשות הנבחרת
 selected_row = df_clean[df_clean[city_col] == selected_city]
-# הכנת df_plot כמו בקולאב
-df_plot = grouped.copy()
+
 selected_cluster = selected_row[cluster_col].values[0]
 selected_vals = selected_row[income_columns].values[0]
 selected_label = f"{selected_city} – אשכול {int(selected_cluster)}"
@@ -119,7 +116,11 @@ for i, col in enumerate(income_columns):
     bottom_vals += values
 
 
-# ציור מחדש של עמודת הרשות עם גבול שחור בלבד (ללא צבע חדש)
+# קביעת גבול עליון לציר Y עם מרווח
+y_max = max(bottom_vals) * 1.15
+ax.set_ylim(0, y_max)
+
+# ציור מחדש של עמודת הרשות עם גבול שחור בלבד
 overlay_bottom = 0
 for i, col in enumerate(income_columns):
     val = selected_vals[i]
@@ -129,12 +130,19 @@ for i, col in enumerate(income_columns):
     )
     overlay_bottom += val
 
+fig.tight_layout()
+st.pyplot(fig)
+
+
 
 
 ax.set_xlabel("אשכול חברתי-כלכלי"[::-1], fontsize=12)
 ax.set_ylabel('ש"ח לנפש'[::-1], fontsize=12)
 ax.set_title("התפלגות הכנסות לנפש לפי אשכול ורשות נבחרת"[::-1], fontsize=14)
 ax.legend()
+
+ax.set_xticks(bar_positions)
+ax.set_xticklabels(x_labels, rotation=45, ha='right')
 
 fig.tight_layout()
 st.pyplot(fig)
