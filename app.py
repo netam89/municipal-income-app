@@ -136,8 +136,8 @@ ax.set_ylabel('ש"ח לנפש'[::-1], fontsize=12)
 ax.set_title("התפלגות הכנסות לנפש לפי אשכול ורשות נבחרת"[::-1], fontsize=14)
 ax.legend()
 
+fig.tight_layout()
 st.pyplot(fig)
-
 
 
 
