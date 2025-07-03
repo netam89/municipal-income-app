@@ -1,78 +1,114 @@
 
 
-import streamlit as st
+
 import pandas as pd
 import matplotlib.pyplot as plt
+import matplotlib
+import streamlit as st
 import numpy as np
+import os
 
-st.set_page_config(layout="wide")
+# טעינת פונט מותאם במידה וקיים
+font_path = "./Arial Hebrew Regular.ttf"
+if os.path.exists(font_path):
+    from matplotlib import font_manager as fm
+    fm.fontManager.addfont(font_path)
+    prop = fm.FontProperties(fname=font_path)
+    plt.rcParams['font.family'] = prop.get_name()
 
-# טוען את הדאטה
+# קריאת הנתונים
 df_clean = pd.read_csv("data_arnona.csv")
 
-# שמות העמודות
-cluster_col = 'אשכול'
-city_col = 'שם הרשות'
+# הגדרת עמודות
 income_columns = [
-    'הכנסות מהמדינה לנפש',
-    'ארנונה למגורים והכנסות עצמיות לנפש',
-    'ארנונה לא למגורים לנפש'
+    "הכנסות מהמדינה לנפש",
+    "ארנונה למגורים והכנסות עצמיות לנפש",
+    "ארנונה לא למגורים לנפש"
 ]
+cluster_col = "אשכול"
+city_col = "שם הרשות"
 
-# כותרת ראשית
-st.title("השוואת הכנסות לנפש לפי אשכול ורשות מקומית")
+# כותרת בעברית בכיוון תקין
+st.markdown("<h1 style='direction: rtl;'>השוואת הכנסות לנפש לפי אשכול ורשות מקומית</h1>", unsafe_allow_html=True)
 
-# תפריט נפתח לבחירת רשות
-selected_city = st.selectbox("בחרו רשות", sorted(df_clean[city_col].dropna().unique()))
+# תווית לבחירת רשות גם כן בכיוון תקין
+st.markdown("<p style='direction: rtl;'>בחרי רשות:</p>", unsafe_allow_html=True)
+selected_city = st.selectbox("", df_clean[city_col].dropna().unique())
 
-# מחשב ממוצעים לפי אשכול
+
+
+# חישוב ממוצע לפי אשכול
 grouped = df_clean.groupby(cluster_col)[income_columns].mean().reset_index()
 
-# מוסיף את נתוני הרשות הנבחרת
-selected_row = df_clean[df_clean[city_col] == selected_city]
-if not selected_row.empty:
-    selected_cluster = selected_row.iloc[0][cluster_col]
-    city_data = selected_row[income_columns].iloc[0].values
-    city_bar = pd.DataFrame([city_data], columns=income_columns)
-    city_bar[cluster_col] = selected_cluster + 0.2  # מקדם כדי לא לכסות את העמודה הקיימת
-    city_bar['label'] = f"(הרשות) {selected_city}"
-
-# תרשים
+# ציור הגרף
 fig, ax = plt.subplots(figsize=(10, 6))
-bottom = np.zeros(len(grouped))
 
-colors = ['#1f77b4', '#ff7f0e', '#2ca02c']
+bar_width = 0.6
+clusters = grouped[cluster_col].astype(str)
+x_positions = np.arange(len(clusters))  # מיקומים מספריים לציר X
 
-# עמודות ראשיות לפי אשכול
-for idx, column in enumerate(income_columns):
-    ax.bar(grouped[cluster_col], grouped[column], bottom=bottom, label=column, color=colors[idx])
-    bottom += grouped[column]
+colors = ["#1f77b4", "#ff7f0e", "#2ca02c"]
+labels = [col[::-1] for col in income_columns]  # להפוך לעברית תקינה
+bottom_vals = np.zeros(len(grouped))
+for i, col in enumerate(income_columns):
+    ax.bar(x_positions, grouped[col], bottom=bottom_vals, color=colors[i], label=labels[i])
+    bottom_vals += grouped[col]
 
-# עמודת הרשות הנבחרת
-if not selected_row.empty:
-    bottom_city = np.zeros(1)
-    for idx, column in enumerate(income_columns):
-        ax.bar(
-            city_bar[cluster_col],
-            city_bar[column],
-            bottom=bottom_city,
-            label=f"{column} ({city_bar['label'].iloc[0]})" if idx == 0 else "",
-            color=colors[idx],
-            alpha=0.3,
-            edgecolor='black',
-            linewidth=1
-        )
-        bottom_city += city_bar[column].values
+# הוספת עמודה שקופה של הרשות הנבחרת
+selected_row = df_clean[df_clean[city_col] == selected_city]
+# הכנת df_plot כמו בקולאב
+df_plot = grouped.copy()
+selected_cluster = selected_row[cluster_col].values[0]
+selected_vals = selected_row[income_columns].values[0]
+selected_label = f"{selected_city} – אשכול {int(selected_cluster)}"
 
-# סגנון
-ax.set_xlabel("אשכול חברתי-כלכלי", fontsize=12)
-ax.set_ylabel('ש"ח לנפש', fontsize=12)
-ax.set_title("התפלגות הכנסות לנפש לפי אשכול ורשות שנבחרה", fontsize=14)
+insert_index = grouped[cluster_col].tolist().index(selected_cluster) + 1
+x_labels = grouped[cluster_col].astype(str).tolist()
+selected_label = f"{selected_city} – אשכול {int(selected_cluster)}"[::-1]
+x_labels.insert(insert_index, selected_label)
+
+
+# בניית ערכי y
+bottom_vals = np.zeros(len(x_labels))
+bar_positions = np.arange(len(x_labels))
+
+fig, ax = plt.subplots(figsize=(10, 6))
+
+for i, col in enumerate(income_columns):
+    values = grouped[col].tolist()
+    values.insert(insert_index, 0)  # מקום לעמודת הרשות
+    ax.bar(bar_positions, values, bottom=bottom_vals,
+           width=0.6, color=colors[i], label=labels[i])
+    bottom_vals += values
+
+# ציור עמודת הרשות בצבעים מודגשים
+highlight_colors = ["#2c6b99", "#cc6c00", "#2a9232"]
+overlay_bottom = 0
+for i, col in enumerate(income_columns):
+    val = selected_row[col].values[0]
+    ax.bar(bar_positions[insert_index], val, bottom=overlay_bottom,
+           width=0.6, color=highlight_colors[i], edgecolor='black', linewidth=1.5)
+    overlay_bottom += val
+
+
+
+# יצירת תוויות לציר X כולל הרשות
+x_labels = clusters.tolist()
+selected_label = f"{selected_city} – אשכול {int(selected_cluster)}"[::-1]
+x_labels.insert(insert_index, selected_label)
+
+# עדכון התוויות על הציר
+ax.set_xticks(bar_positions)  # תואם לאורך x_labels
+ax.set_xticklabels(x_labels, rotation=45, ha='right')
+
+
+
+ax.set_xlabel("אשכול חברתי-כלכלי"[::-1], fontsize=12)
+ax.set_ylabel('ש"ח לנפש'[::-1], fontsize=12)
+ax.set_title("התפלגות הכנסות לנפש לפי אשכול ורשות נבחרת"[::-1], fontsize=14)
 ax.legend()
+
 st.pyplot(fig)
-
-
-
 
 
 
