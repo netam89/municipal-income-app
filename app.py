@@ -89,7 +89,6 @@ for i, col in enumerate(income_columns):
         if j == insert_index:
             total = selected_total
         else:
-            # מאחר והכנסנו ערך לעמודת הרשות, האינדקסים לאחר insert_index הוזזו ב־1
             grouped_index = j if j < insert_index else j - 1
             total = sum([grouped[c].iloc[grouped_index] for c in income_columns])
 
@@ -101,10 +100,18 @@ for i, col in enumerate(income_columns):
             y_pos = bottom_vals[j] + val + 100
             va = 'bottom'
 
-        ax.text(bar_positions[j], y_pos, f"{percent:.0f}%", ha='center', va=va,
-                fontsize=8, color='white' if val / total >= 0.15 else 'black')
+        ax.text(
+            bar_positions[j],
+            y_pos,
+            f"{percent:.0f}%",
+            ha='center',
+            va=va,
+            fontsize=8,
+            color='white' if va == 'center' else 'black'
+        )
 
     bottom_vals += values
+
 
 
         ax.text(bar_positions[j], y_pos, f"{percent:.0f}%", ha='center', va=va, fontsize=8, color='white' if va == 'center' else 'black')
