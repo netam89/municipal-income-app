@@ -61,6 +61,9 @@ x_labels = clusters.tolist()
 selected_label = f"{selected_city} – אשכול {int(selected_cluster)}"[::-1]
 x_labels.insert(insert_index, selected_label)
 
+colors = ["#1f77b4", "#ff7f0e", "#2ca02c"]
+labels = [col[::-1] for col in income_columns]
+
 fig, ax = plt.subplots(figsize=(10, 6))
 bottom_vals = np.zeros(len(bar_positions))
 
