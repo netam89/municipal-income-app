@@ -87,8 +87,10 @@ for i, col in enumerate(income_columns):
 
     bottom_vals += values
 
+
 # ציור עמודת הרשות בצבעים מודגשים עם אחוזים
 highlight_bottom = 0
+highlight_colors = ["#2c6b99", "#cc6c00", "#2a9232"]
 selected_total = selected_vals.sum()
 
 for i, val in enumerate(selected_vals):
