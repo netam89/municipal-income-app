@@ -66,7 +66,6 @@ x_labels = grouped[cluster_col].astype(str).tolist()
 selected_label = f"{selected_city} – אשכול {int(selected_cluster)}"[::-1]
 x_labels.insert(insert_index, selected_label)
 
-
 # ציור כל העמודות כולל עמודת הרשות והוספת אחוזים
 selected_total = selected_row[income_columns].sum(axis=1).values[0]
 bar_positions = np.arange(len(clusters) + 1)  # +1 לרשות
@@ -77,24 +76,36 @@ x_labels.insert(insert_index, selected_label)
 fig, ax = plt.subplots(figsize=(10, 6))
 bottom_vals = np.zeros(len(bar_positions))
 
-# ציור עמודות האשכולות
+# ציור עמודות האשכולות והרשות
 for i, col in enumerate(income_columns):
     values = grouped[col].tolist()
-    values.insert(insert_index, 0)  # לרשות הנבחרת
-    bars = ax.bar(bar_positions, values, bottom=bottom_vals, width=0.6, color=colors[i], label=labels[i])
+    values.insert(insert_index, selected_vals[i])  # להכניס ערך הרשות הנבחרת
 
-    # אחוזים
+    bars = ax.bar(bar_positions, values, bottom=bottom_vals,
+                  width=0.6, color=colors[i], label=labels[i])
+
+    # הוספת אחוזים
     for j, val in enumerate(values):
-        total = sum([grouped[c].iloc[j] for c in income_columns]) if j != insert_index else selected_total
-        percent = val / total * 100 if total > 0 else 0
-        y_pos = bottom_vals[j] + val / 2
+        if j == insert_index:
+            total = selected_total
+        else:
+            # מאחר והכנסנו ערך לעמודת הרשות, האינדקסים לאחר insert_index הוזזו ב־1
+            grouped_index = j if j < insert_index else j - 1
+            total = sum([grouped[c].iloc[grouped_index] for c in income_columns])
 
-        # אם העמודה נמוכה מדי – כתוב מעל
+        percent = val / total * 100 if total > 0 else 0
+
+        y_pos = bottom_vals[j] + val / 2
+        va = 'center'
         if val / total < 0.15:
             y_pos = bottom_vals[j] + val + 100
             va = 'bottom'
-        else:
-            va = 'center'
+
+        ax.text(bar_positions[j], y_pos, f"{percent:.0f}%", ha='center', va=va,
+                fontsize=8, color='white' if val / total >= 0.15 else 'black')
+
+    bottom_vals += values
+
 
         ax.text(bar_positions[j], y_pos, f"{percent:.0f}%", ha='center', va=va, fontsize=8, color='white' if va == 'center' else 'black')
 
