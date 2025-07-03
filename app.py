@@ -40,17 +40,6 @@ selected_city = st.selectbox("", df_clean[city_col].dropna().unique())
 grouped = df_clean.groupby(cluster_col)[income_columns].mean().reset_index()
 
 
-bar_width = 0.6
-clusters = grouped[cluster_col].astype(str)
-x_positions = np.arange(len(clusters))  # מיקומים מספריים לציר X
-
-colors = ["#1f77b4", "#ff7f0e", "#2ca02c"]
-labels = [col[::-1] for col in income_columns]  # להפוך לעברית תקינה
-bottom_vals = np.zeros(len(grouped))
-for i, col in enumerate(income_columns):
-    ax.bar(x_positions, grouped[col], bottom=bottom_vals, color=colors[i], label=labels[i])
-    bottom_vals += grouped[col]
-
 # הוספת עמודה שקופה של הרשות הנבחרת
 selected_row = df_clean[df_clean[city_col] == selected_city]
 
