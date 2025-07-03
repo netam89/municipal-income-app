@@ -54,6 +54,8 @@ x_labels.insert(insert_index, selected_label)
 
 # ציור כל העמודות כולל עמודת הרשות והוספת אחוזים
 selected_total = selected_row[income_columns].sum(axis=1).values[0]
+
+clusters = grouped[cluster_col].astype(str)
 bar_positions = np.arange(len(clusters) + 1)  # +1 לרשות
 x_labels = clusters.tolist()
 selected_label = f"{selected_city} – אשכול {int(selected_cluster)}"[::-1]
