@@ -67,60 +67,47 @@ selected_label = f"{selected_city} – אשכול {int(selected_cluster)}"[::-1]
 x_labels.insert(insert_index, selected_label)
 
 
-# ציור כל העמודות כולל אחוזים
-bar_positions = np.arange(len(x_labels))
-bottom_vals = np.zeros(len(x_labels))
-
-for i, col in enumerate(income_columns):
-    values = grouped[col].tolist()
-    values.insert(insert_index, 0)  # אפס לעמודת הרשות
-    bars = ax.bar(bar_positions, values, bottom=bottom_vals, width=0.6, color=colors[i], label=labels[i])
-
-    for j in range(len(grouped)):
-        total = grouped.loc[j, income_columns].sum()
-        percent = values[j] / total * 100 if total > 0 else 0
-        y_val = bottom_vals[j] + values[j] / 2
-        if values[j] > 1:
-            ax.text(bar_positions[j], y_val, f"{percent:.0f}%", ha='center', va='center', fontsize=8, color='white')
-        else:
-            ax.text(bar_positions[j], bottom_vals[j] + values[j] + 0.2, f"{percent:.0f}%", ha='center', va='bottom', fontsize=8, color='black')
-
-    bottom_vals += values
-
-
-# ציור עמודת הרשות בצבעים מודגשים עם אחוזים
-highlight_bottom = 0
-highlight_colors = ["#2c6b99", "#cc6c00", "#2a9232"]
-selected_total = selected_vals.sum()
-
-for i, val in enumerate(selected_vals):
-    percent = val / selected_total * 100 if selected_total > 0 else 0
-    bar = ax.bar(
-        bar_positions[insert_index],
-        val,
-        bottom=highlight_bottom,
-        width=0.6,
-        color=highlight_colors[i],
-        edgecolor='black',
-        linewidth=1.5
-    )
-    y_val = highlight_bottom + val / 2
-    if val > 1:
-        ax.text(bar_positions[insert_index], y_val, f"{percent:.0f}%", ha='center', va='center', fontsize=8, color='white')
-    else:
-        ax.text(bar_positions[insert_index], highlight_bottom + val + 0.2, f"{percent:.0f}%", ha='center', va='bottom', fontsize=8, color='black')
-    highlight_bottom += val
-
-
-
-# יצירת תוויות לציר X כולל הרשות
+# ציור כל העמודות כולל עמודת הרשות והוספת אחוזים
+bar_positions = np.arange(len(clusters) + 1)  # +1 לרשות
 x_labels = clusters.tolist()
 selected_label = f"{selected_city} – אשכול {int(selected_cluster)}"[::-1]
 x_labels.insert(insert_index, selected_label)
 
-# עדכון התוויות על הציר
-ax.set_xticks(bar_positions)  # תואם לאורך x_labels
-ax.set_xticklabels(x_labels, rotation=45, ha='right')
+fig, ax = plt.subplots(figsize=(10, 6))
+bottom_vals = np.zeros(len(bar_positions))
+
+# ציור עמודות האשכולות
+for i, col in enumerate(income_columns):
+    values = grouped[col].tolist()
+    values.insert(insert_index, 0)  # לרשות הנבחרת
+    bars = ax.bar(bar_positions, values, bottom=bottom_vals, width=0.6, color=colors[i], label=labels[i])
+
+    # אחוזים
+    for j, val in enumerate(values):
+        total = sum([grouped[c].iloc[j] for c in income_columns]) if j != insert_index else selected_total
+        percent = val / total * 100 if total > 0 else 0
+        y_pos = bottom_vals[j] + val / 2
+
+        # אם העמודה נמוכה מדי – כתוב מעל
+        if val / total < 0.15:
+            y_pos = bottom_vals[j] + val + 100
+            va = 'bottom'
+        else:
+            va = 'center'
+
+        ax.text(bar_positions[j], y_pos, f"{percent:.0f}%", ha='center', va=va, fontsize=8, color='white' if va == 'center' else 'black')
+
+    bottom_vals += values
+
+# ציור מחדש של עמודת הרשות עם גבול שחור בלבד (ללא צבע חדש)
+overlay_bottom = 0
+for i, col in enumerate(income_columns):
+    val = selected_vals[i]
+    ax.bar(
+        bar_positions[insert_index], val, bottom=overlay_bottom,
+        width=0.6, color=colors[i], edgecolor='black', linewidth=1.5
+    )
+    overlay_bottom += val
 
 
 
