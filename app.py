@@ -1,4 +1,5 @@
 
+
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib
@@ -66,47 +67,52 @@ selected_label = f"{selected_city} – אשכול {int(selected_cluster)}"[::-1]
 x_labels.insert(insert_index, selected_label)
 
 
-# בניית ערכי y
-bottom_vals = np.zeros(len(x_labels))
+# ציור כל העמודות כולל אחוזים
 bar_positions = np.arange(len(x_labels))
-
-fig, ax = plt.subplots(figsize=(10, 6))
+bottom_vals = np.zeros(len(x_labels))
 
 for i, col in enumerate(income_columns):
     values = grouped[col].tolist()
-    values.insert(insert_index, 0)  # מקום לעמודת הרשות
-    ax.bar(bar_positions, values, bottom=bottom_vals,
-           width=0.6, color=colors[i], label=labels[i])
+    values.insert(insert_index, 0)  # אפס לעמודת הרשות
+    bars = ax.bar(bar_positions, values, bottom=bottom_vals, width=0.6, color=colors[i], label=labels[i])
+
+    # הוספת אחוזים בתוך העמודות של האשכולות
+    for j in range(len(grouped)):
+        total = grouped.loc[j, income_columns].sum()
+        percent = values[j] / total * 100 if total > 0 else 0
+        ax.text(bar_positions[j], bottom_vals[j] + values[j] / 2, f"{percent:.0f}%", ha='center', va='center', fontsize=8, color='white')
+
     bottom_vals += values
 
-# הוספת אחוזים לעמודות של האשכולות
-totals = grouped[income_columns].sum(axis=1)
-for i, col in enumerate(income_columns):
-    cumulative = np.zeros(len(grouped))
-    for j in range(i):
-        cumulative += grouped[income_columns[j]]
-    for idx, val in enumerate(grouped[col]):
-        percent = val / totals[idx] * 100
-        ax.text(x_positions[idx], cumulative[idx] + val / 2, f"{percent:.0f}%", ha='center', va='center', fontsize=8, color='white')
 
 
 # ציור עמודת הרשות בצבעים מודגשים
 highlight_colors = ["#2c6b99", "#cc6c00", "#2a9232"]
 overlay_bottom = 0
-for i, col in enumerate(income_columns):
-    val = selected_row[col].values[0]
+selected_total = selected_vals.sum()
+for i, val in enumerate(selected_vals):
     ax.bar(bar_positions[insert_index], val, bottom=overlay_bottom,
            width=0.6, color=highlight_colors[i], edgecolor='black', linewidth=1.5)
+    percent = val / selected_total * 100 if selected_total > 0 else 0
+    ax.text(bar_positions[insert_index], overlay_bottom + val / 2, f"{percent:.0f}%", ha='center', va='center', fontsize=8, color='white')
     overlay_bottom += val
+
 
 # הוספת אחוזים לעמודת הרשות
 selected_total = selected_row[income_columns].sum(axis=1).values[0]
 overlay_bottom = 0
 for i, col in enumerate(income_columns):
     val = selected_row[col].values[0]
-    percent = val / selected_total * 100
-    ax.text(bar_positions[insert_index], overlay_bottom + val / 2, f"{percent:.0f}%", ha='center', va='center', fontsize=8, color='white')
-    overlay_bottom += val
+    percent = (val / total) * 100 if total > 0 else 0
+    ax.bar(
+        bar_positions[insert_index],
+        val,
+        bottom=overlay_bottom,
+        width=0.6,
+        color=highlight_colors[i],
+        edgecolor='black',
+        linewidth=1.5
+    )
 
 
 # יצירת תוויות לציר X כולל הרשות
@@ -126,6 +132,10 @@ ax.set_title("התפלגות הכנסות לנפש לפי אשכול ורשות 
 ax.legend()
 
 st.pyplot(fig)
+
+
+
+
 
 
 
