@@ -81,8 +81,14 @@ for i, col in enumerate(income_columns):
     values = grouped[col].tolist()
     values.insert(insert_index, selected_vals[i])  # להכניס ערך הרשות הנבחרת
 
-    bars = ax.bar(bar_positions, values, bottom=bottom_vals,
-                  width=0.6, color=colors[i], label=labels[i])
+    bars = ax.bar(
+        bar_positions,
+        values,
+        bottom=bottom_vals,
+        width=0.6,
+        color=colors[i],
+        label=labels[i]
+    )
 
     # הוספת אחוזים
     for j, val in enumerate(values):
@@ -93,9 +99,9 @@ for i, col in enumerate(income_columns):
             total = sum([grouped[c].iloc[grouped_index] for c in income_columns])
 
         percent = val / total * 100 if total > 0 else 0
-
         y_pos = bottom_vals[j] + val / 2
         va = 'center'
+
         if val / total < 0.15:
             y_pos = bottom_vals[j] + val + 100
             va = 'bottom'
@@ -112,11 +118,6 @@ for i, col in enumerate(income_columns):
 
     bottom_vals += values
 
-
-
-        ax.text(bar_positions[j], y_pos, f"{percent:.0f}%", ha='center', va=va, fontsize=8, color='white' if va == 'center' else 'black')
-
-    bottom_vals += values
 
 # ציור מחדש של עמודת הרשות עם גבול שחור בלבד (ללא צבע חדש)
 overlay_bottom = 0
