@@ -76,43 +76,39 @@ for i, col in enumerate(income_columns):
     values.insert(insert_index, 0)  # אפס לעמודת הרשות
     bars = ax.bar(bar_positions, values, bottom=bottom_vals, width=0.6, color=colors[i], label=labels[i])
 
-    # הוספת אחוזים בתוך העמודות של האשכולות
     for j in range(len(grouped)):
         total = grouped.loc[j, income_columns].sum()
         percent = values[j] / total * 100 if total > 0 else 0
-        ax.text(bar_positions[j], bottom_vals[j] + values[j] / 2, f"{percent:.0f}%", ha='center', va='center', fontsize=8, color='white')
+        y_val = bottom_vals[j] + values[j] / 2
+        if values[j] > 1:
+            ax.text(bar_positions[j], y_val, f"{percent:.0f}%", ha='center', va='center', fontsize=8, color='white')
+        else:
+            ax.text(bar_positions[j], bottom_vals[j] + values[j] + 0.2, f"{percent:.0f}%", ha='center', va='bottom', fontsize=8, color='black')
 
     bottom_vals += values
 
-
-
-# ציור עמודת הרשות בצבעים מודגשים
-highlight_colors = ["#2c6b99", "#cc6c00", "#2a9232"]
-overlay_bottom = 0
+# ציור עמודת הרשות בצבעים מודגשים עם אחוזים
+highlight_bottom = 0
 selected_total = selected_vals.sum()
+
 for i, val in enumerate(selected_vals):
-    ax.bar(bar_positions[insert_index], val, bottom=overlay_bottom,
-           width=0.6, color=highlight_colors[i], edgecolor='black', linewidth=1.5)
     percent = val / selected_total * 100 if selected_total > 0 else 0
-    ax.text(bar_positions[insert_index], overlay_bottom + val / 2, f"{percent:.0f}%", ha='center', va='center', fontsize=8, color='white')
-    overlay_bottom += val
-
-
-# הוספת אחוזים לעמודת הרשות
-selected_total = selected_row[income_columns].sum(axis=1).values[0]
-overlay_bottom = 0
-for i, col in enumerate(income_columns):
-    val = selected_row[col].values[0]
-    percent = (val / total) * 100 if total > 0 else 0
-    ax.bar(
+    bar = ax.bar(
         bar_positions[insert_index],
         val,
-        bottom=overlay_bottom,
+        bottom=highlight_bottom,
         width=0.6,
         color=highlight_colors[i],
         edgecolor='black',
         linewidth=1.5
     )
+    y_val = highlight_bottom + val / 2
+    if val > 1:
+        ax.text(bar_positions[insert_index], y_val, f"{percent:.0f}%", ha='center', va='center', fontsize=8, color='white')
+    else:
+        ax.text(bar_positions[insert_index], highlight_bottom + val + 0.2, f"{percent:.0f}%", ha='center', va='bottom', fontsize=8, color='black')
+    highlight_bottom += val
+
 
 
 # יצירת תוויות לציר X כולל הרשות
